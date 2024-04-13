@@ -23,11 +23,13 @@ if mps.is_available():
 weights = EfficientNet_B0_Weights.DEFAULT
 
 """data"""
-train_dataset = ImageDataset(target_dir=".dataset/images/train", transform=weights.transforms())
-test_dataset = ImageDataset(target_dir=".dataset/images/test", transform=weights.transforms())
+train_dataset = ImageDataset(target_dir=".dataset/model_input/train", transform=weights.transforms())
+test_dataset = ImageDataset(target_dir=".dataset/model_input/test", transform=weights.transforms())
+val_dataset = ImageDataset(target_dir=".dataset/model_input/val", transform=weights.transforms())
 
 train_dataloader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=False)
 test_dataloader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
+val_dataloader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
 
 """visulize"""
 visualize_random_dataset()

@@ -10,10 +10,10 @@ An image classifier to predict if an image contains a person wearing a face mask
 
 ## Metrices
 <p float="left">
-  <img src="/.output/screenshots/loss.png" width="100" />
-  <img src="/.output/screenshots/accuracy.png" width="100" />
+  <img src="/.output/screenshots/loss.png" width="500" />
+  <img src="/.output/screenshots/accuracy.png" width="500" />
 </p>
 
 ## Predictions
-<img src="/.output/screenshots/predictions.png" width="100" />
+<img src="/.output/screenshots/predictions.png" />
 

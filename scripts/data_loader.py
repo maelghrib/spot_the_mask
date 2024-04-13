@@ -1,85 +1,77 @@
+import os
 import shutil
+import pandas as pd
 import zipfile
 from pathlib import Path
-import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-def unzip_images(data_dir_path, images_dir_path):
-    if images_dir_path.exists():
-        shutil.rmtree(images_dir_path)
-
-    images_dir_path.mkdir(parents=True, exist_ok=True)
-
-    with zipfile.ZipFile(data_dir_path / "images.zip", "r") as zip_ref:
-        zip_ref.extractall(data_dir_path)
-
-    return images_dir_path
+def remove_old_folders(destination):
+    images_folder = destination / "images"
+    model_input_folder = destination / "model_input"
+    for folder in [images_folder, model_input_folder]:
+        if folder.exists():
+            shutil.rmtree(folder)
 
 
-def create_subdirs(images_dir_path):
-    train_mask_dir_path = images_dir_path / "train" / "mask"
-    train_no_mask_dir_path = images_dir_path / "train" / "no_mask"
-
-    train_mask_dir_path.mkdir(parents=True, exist_ok=True)
-    train_no_mask_dir_path.mkdir(parents=True, exist_ok=True)
-
-    test_mask_dir_path = images_dir_path / "test" / "mask"
-    test_no_mask_dir_path = images_dir_path / "test" / "no_mask"
-
-    test_mask_dir_path.mkdir(parents=True, exist_ok=True)
-    test_no_mask_dir_path.mkdir(parents=True, exist_ok=True)
+def unzip_file(file, destination):
+    with zipfile.ZipFile(file, "r") as zip_ref:
+        zip_ref.extractall(destination)
 
 
-def move_images_to_subdirs(images_dir_path):
-    df = pd.read_csv("./.dataset/train_labels.csv")
-    mask_df = df[df["target"] == 1]
-    no_mask_df = df[df["target"] == 0]
+def create_folders(destination):
+    images_folder = destination / "images"
+    model_input_folder = destination / "model_input"
+    train_folder = model_input_folder / "train"
+    test_folder = model_input_folder / "test"
+    val_folder = model_input_folder / "val"
 
-    train_mask, test_mask = train_test_split(
-        mask_df,
-        test_size=0.1,
-        random_state=42,
-    )
-    train_no_mask, test_no_mask = train_test_split(
-        no_mask_df,
-        test_size=0.1,
-        random_state=42,
-    )
+    for folder in [images_folder, model_input_folder, train_folder, test_folder, val_folder]:
+        os.makedirs(folder, exist_ok=True)
 
-    print(f"Total: {len(mask_df) + len(no_mask_df)}")
-    print(f"Total Train: {len(train_mask) + len(train_no_mask)}")
-    print(f"Total Test: {len(test_mask) + len(test_no_mask)}")
+    return train_folder, test_folder, val_folder
 
-    for image_path in list(images_dir_path.glob("*")):
 
-        if image_path.name in list(mask_df["image"]):
-            if image_path.name in list(train_mask["image"]):
-                try:
-                    shutil.move(image_path, images_dir_path / "train" / "mask")
-                except OSError as e:
-                    pass
-            elif image_path.name in list(test_mask["image"]):
-                try:
-                    shutil.move(image_path, images_dir_path / "test" / "mask")
-                except OSError as e:
-                    pass
-        elif image_path.name in list(no_mask_df["image"]):
-            if image_path.name in list(train_no_mask["image"]):
-                try:
-                    shutil.move(image_path, images_dir_path / "train" / "no_mask")
-                except OSError as e:
-                    pass
-            elif image_path.name in list(test_no_mask["image"]):
-                try:
-                    shutil.move(image_path, images_dir_path / "test" / "no_mask")
-                except OSError as e:
-                    pass
+def split_data(file):
+    df = pd.read_csv(file)
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    train_df, val_df = train_test_split(train_df, test_size=0.1, random_state=42)
+    print(f"Total: {len(df)}, Train: {len(train_df)}, Test: {len(test_df)}, Val: {len(val_df)}")
+    return train_df, test_df, val_df
+
+
+def move_images(data, source, destination):
+    for index, row in data.iterrows():
+        image_name = row['image']
+        target = "mask" if row['target'] == 1 else "no_mask"
+
+        target_folder = os.path.join(destination, target)
+        os.makedirs(target_folder, exist_ok=True)
+
+        try:
+            shutil.move(source / image_name, target_folder)
+        except OSError as e:
+            print(f"Can't find image {source / image_name}")
+
+    print(f"\nTotal of {len(data)} of images moved successfully to {destination}.")
+    for dirpath, dirnames, filenames in os.walk(destination):
+        print(f"There are {len(dirnames)} directories and {len(filenames)} images in '{dirpath}'.")
 
 
 if __name__ == '__main__':
-    data_path = Path(".dataset/")
-    images_path = data_path / "images"
-    unzip_images(data_path, images_path)
-    create_subdirs(images_path)
-    move_images_to_subdirs(images_path)
+    dataset_path = Path("../.dataset/")
+
+    remove_old_folders(destination=dataset_path)
+
+    zip_file = dataset_path / "images.zip"
+    unzip_file(file=zip_file, destination=dataset_path)
+
+    train_path, test_path, val_path = create_folders(destination=dataset_path)
+
+    csv_file = dataset_path / "train_labels.csv"
+    train, test, val = split_data(file=csv_file)
+
+    images_path = dataset_path / "images"
+    move_images(data=train, source=images_path, destination=train_path)
+    move_images(data=test, source=images_path, destination=test_path)
+    move_images(data=val, source=images_path, destination=val_path)

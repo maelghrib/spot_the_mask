@@ -12,7 +12,7 @@ def visualize_random_dataset():
         transforms.ToTensor()
     ])
 
-    train_dataset = ImageDataset(target_dir=".dataset/images/train", transform=data_transform)
+    train_dataset = ImageDataset(target_dir=".dataset/model_input/train", transform=data_transform)
 
     fig = plt.figure(figsize=(9, 9))
     rows, cols = 4, 4

@@ -10,7 +10,7 @@ def make_test_samples():
         transforms.ToTensor()
     ])
 
-    test_dataset = ImageDataset(target_dir=".dataset/images/test", transform=data_transform)
+    test_dataset = ImageDataset(target_dir=".dataset/model_input/test", transform=data_transform)
 
     test_samples = []
     test_labels = []

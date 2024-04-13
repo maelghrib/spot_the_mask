@@ -36,25 +36,25 @@ visualize_random_dataset()
 model = SpotTheMaskModel(output_shape=len(train_dataset.classes))
 
 """train and test"""
-# train_history, test_history = model_trainer(
-#     model=model,
-#     train_dataloader=train_dataloader,
-#     test_dataloader=test_dataloader,
-#     output_shape=len(train_dataset.classes),
-#     device=device,
-#     epochs=5
-# )
+train_history, test_history = model_trainer(
+    model=model,
+    train_dataloader=train_dataloader,
+    test_dataloader=test_dataloader,
+    output_shape=len(train_dataset.classes),
+    device=device,
+    epochs=5
+)
 
 """save model"""
-# save_model(model=model, name="spot_the_mask_model_v0.pth")
+save_model(model=model, name="spot_the_mask_model_v0.pth")
 
 """save history"""
-# save_train_history(train_history)
-# save_test_history(test_history)
+save_train_history(train_history)
+save_test_history(test_history)
 
 """visulize history"""
-# visualize_losses()
-# visualize_accuracies()
+visualize_losses()
+visualize_accuracies()
 
 """load model"""
 model.load_state_dict(torch.load(".output/models/spot_the_mask_model_v0.pth"))
@@ -67,20 +67,18 @@ model_results = model_evalulater(
     device=device,
 )
 
-print(model_results)
-
 """predict"""
-# test_samples, test_labels = make_test_samples()
-# pred_labels = make_predictions(model=model, test_samples=test_samples, device=device)
-#
-# """visualize predictions"""
-# visualize_predictions(
-#     classes=test_dataset.classes,
-#     test_samples=test_samples,
-#     test_labels=test_labels,
-#     pred_labels=pred_labels,
-#     model_results=model_results,
-# )
+test_samples, test_labels = make_test_samples()
+pred_labels = make_predictions(model=model, test_samples=test_samples, device=device)
+
+"""visualize predictions"""
+visualize_predictions(
+    classes=test_dataset.classes,
+    test_samples=test_samples,
+    test_labels=test_labels,
+    pred_labels=pred_labels,
+    model_results=model_results,
+)
 
 
 

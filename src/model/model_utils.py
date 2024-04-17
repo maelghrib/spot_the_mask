@@ -2,6 +2,8 @@ import os
 import torch
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
+from torch.utils.tensorboard import SummaryWriter
 
 
 def save_model(model, name):
@@ -66,3 +68,15 @@ def save_test_history(test_history):
     df.to_csv(test_history_save_path, index=False)
 
     return test_history_save_path
+
+
+def create_tensorboard_writer(experiment_name, model_name, extra=None):
+
+    timestamp = datetime.now().strftime("%Y-%m-%d")
+
+    log_dir = os.path.join(".output", "runs", timestamp, experiment_name, model_name)
+    if extra:
+        log_dir = os.path.join(log_dir, extra)
+
+    print(f"[INFO] Created SummaryWriter, saving to: {log_dir}...")
+    return SummaryWriter(log_dir=log_dir)

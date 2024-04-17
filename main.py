@@ -6,8 +6,11 @@ from torchvision.models import EfficientNet_B0_Weights
 from src.data.data_visualizer import visualize_random_dataset, visualize_predictions
 from src.model.model_builder import SpotTheMaskModel
 from src.model.model_trainer import model_trainer, model_evalulater
-from src.model.model_utils import save_model
+from src.model.model_utils import save_model, create_tensorboard_writer
 from src.model.model_predictor import make_test_samples, make_predictions
+
+"""constants"""
+EPOCHS = 5
 
 """device"""
 device = "cpu"
@@ -29,6 +32,13 @@ val_dataloader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
 """visulize"""
 visualize_random_dataset()
 
+"""tensorboard"""
+writer = create_tensorboard_writer(
+    experiment_name="exp_0",
+    model_name="effnet_b0",
+    extra=f"{EPOCHS}_epochs"
+)
+
 """model"""
 model = SpotTheMaskModel(output_shape=len(train_dataset.classes))
 
@@ -39,7 +49,8 @@ train_history, test_history = model_trainer(
     test_dataloader=test_dataloader,
     output_shape=len(train_dataset.classes),
     device=device,
-    epochs=2
+    epochs=2,
+    writer=writer,
 )
 
 """save model"""

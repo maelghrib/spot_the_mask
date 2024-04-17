@@ -2,11 +2,9 @@ import torch
 from torch.optim import SGD
 from torch.nn import CrossEntropyLoss
 from torchmetrics import Accuracy
-from .model_utils import save_model, save_train_history, save_test_history
-from ..data.data_visualizer import visualize_history
 
 
-def model_trainer(model, train_dataloader, test_dataloader, output_shape, device, epochs):
+def model_trainer(model, train_dataloader, test_dataloader, output_shape, device, epochs, writer):
     # model config
     optimizer = SGD(params=model.parameters(), lr=0.1)
     loss_fn = CrossEntropyLoss()
@@ -31,12 +29,30 @@ def model_trainer(model, train_dataloader, test_dataloader, output_shape, device
         print(f"Train Results: {train_results}")
         print(f"Test Results: {test_results}")
 
-    train_history_save_path = save_train_history(train_history)
-    test_history_save_path = save_test_history(test_history)
+        writer.add_scalars(
+            main_tag="Loss",
+            tag_scalar_dict={
+                "train_loss": train_results["train_loss"],
+                "test_loss": test_results["test_loss"],
+            },
+            global_step=epoch,
+        )
 
-    visualize_history(train_history_save_path, test_history_save_path)
+        writer.add_scalars(
+            main_tag="Accuracy",
+            tag_scalar_dict={
+                "train_accuracy": train_results["train_accuracy"],
+                "test_accuracy": test_results["test_accuracy"],
+            },
+            global_step=epoch,
+        )
 
-    return train_history, test_history
+        writer.add_graph(
+            model=model,
+            input_to_model=torch.randn(32, 3, 224, 224).to(device),
+        )
+
+    writer.close()
 
 
 def model_evalulater(model, data_loader, output_shape, device):

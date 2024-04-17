@@ -19,6 +19,8 @@ def save_train_history(train_history):
     results_path = Path(".output/results")
     results_path.mkdir(parents=True, exist_ok=True)
 
+    train_history_save_path = results_path / "train_history.csv"
+
     train_losses = []
     train_accuracies = []
     train_epochs = []
@@ -34,13 +36,17 @@ def save_train_history(train_history):
         'train_epoch': train_epochs,
     }
     df = pd.DataFrame(data)
-    df.to_csv('.output/results/train_history.csv', index=False)
+    df.to_csv(train_history_save_path, index=False)
+
+    return train_history_save_path
 
 
 def save_test_history(test_history):
 
     results_path = Path(".output/results")
     results_path.mkdir(parents=True, exist_ok=True)
+
+    test_history_save_path = results_path / "test_history.csv"
 
     test_losses = []
     test_accuracies = []
@@ -57,4 +63,6 @@ def save_test_history(test_history):
         'test_epoch': test_epochs,
     }
     df = pd.DataFrame(data)
-    df.to_csv('.output/results/test_history.csv', index=False)
+    df.to_csv(test_history_save_path, index=False)
+
+    return test_history_save_path

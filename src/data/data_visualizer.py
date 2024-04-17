@@ -6,7 +6,6 @@ from .image_dataset import ImageDataset
 
 
 def visualize_random_dataset():
-
     data_transform = transforms.Compose([
         transforms.Resize(size=(244, 244)),
         transforms.ToTensor()
@@ -26,9 +25,12 @@ def visualize_random_dataset():
     plt.show()
 
 
-def visualize_losses():
-    train_history = pd.read_csv(".output/results/train_history.csv")
-    test_history = pd.read_csv(".output/results/test_history.csv")
+def visualize_history(train_history_save_path, test_history_save_path):
+    # load saved history
+    train_history = pd.read_csv(train_history_save_path)
+    test_history = pd.read_csv(test_history_save_path)
+
+    # visualize loss
     plt.plot(train_history["train_epoch"], train_history["train_loss"], label='Training Loss', color='blue')
     plt.plot(test_history["test_epoch"], test_history["test_loss"], label='Testing Loss', color='red')
     plt.xlabel('Epochs')
@@ -37,10 +39,7 @@ def visualize_losses():
     plt.legend()
     plt.show()
 
-
-def visualize_accuracies():
-    train_history = pd.read_csv(".output/results/train_history.csv")
-    test_history = pd.read_csv(".output/results/test_history.csv")
+    # visualize accuracy
     plt.plot(train_history["train_epoch"], train_history["train_accuracy"], label='Training Accuracy', color='blue')
     plt.plot(test_history["test_epoch"], test_history["test_accuracy"], label='Testing Accuracy', color='red')
     plt.xlabel('Epochs')
